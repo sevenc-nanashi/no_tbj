@@ -12,10 +12,13 @@ module NoTBJ
         puts "Please specify a command, 'install' or 'uninstall'.".minfo
         exit
       end
-      if ARGV[0] == "install"
+      case ARGV[0]
+      when "install"
         install
-      elsif ARGV[0] == "uninstall"
+      when "uninstall"
         uninstall
+      else
+        puts "Unrecognized command.".red
       end
     end
 

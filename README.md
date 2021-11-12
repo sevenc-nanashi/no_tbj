@@ -1,28 +1,19 @@
-# Go::Rbrun
+# NoTBJ
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/go/rbrun`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+No more `Terminate Batch Job (Y/N)` prompts!
+This gem is only for windows.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'go-rbrun'
+Execute this:
 ```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install go-rbrun
-
+> gem install no_tbj
+```
 ## Usage
 
-TODO: Write usage instructions here
+`no_tbj install` to install the executable.
+`no_tbj uninstall` to uninstall the executable.
+Just it, you won't be prompted to terminate the batch job!
 
 ## Development
 
@@ -32,7 +23,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/go-rbrun.
+Bug reports and pull requests are welcome on GitHub at https://github.com/sevenc-nanashi/no_tbj
 
 ## License
 
