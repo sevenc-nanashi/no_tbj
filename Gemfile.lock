@@ -1,0 +1,19 @@
+PATH
+  remote: .
+  specs:
+    no_tbj (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (13.0.6)
+
+PLATFORMS
+  x86-mingw32
+
+DEPENDENCIES
+  no_tbj!
+  rake (~> 13.0)
+
+BUNDLED WITH
+   2.2.22
