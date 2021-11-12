@@ -4,6 +4,7 @@ require_relative "color"
 
 module NoTBJ
   using NoTBJ::Color
+  CHECKS = "no_tbj"
 
   class CLI
     def run
@@ -60,8 +61,8 @@ module NoTBJ
         next if File.directory?(file)
         is_no_tbj = false
         File.open(file, "rb") do |f|
-          f.seek(16 * 4 + 14)
-          is_no_tbj = f.read(9).encode(__ENCODING__) == "!!notbj!!"
+          f.seek(-CHECKS.length, IO::SEEK_END)
+          is_no_tbj = f.read(CHECKS.length) == CHECKS
         end
         if is_no_tbj
           begin
