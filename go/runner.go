@@ -20,7 +20,7 @@ func main() {
 		// Do nothing
 	}()
 	args := os.Args
-	base := executable[:len(executable)-3]
+	base := executable[:len(executable)-4]
 	args[0] = base
 	directory := path.Dir(base)
 	cmd := exec.Command(directory+"/ruby.exe", args...)
