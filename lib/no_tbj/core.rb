@@ -28,51 +28,56 @@ module NoTBJ
     end
 
     def install
-      bindir = RbConfig::CONFIG["bindir"]
       files = { skipped_exist: [], skipped_nobat: [], skipped_exception: [], installed: [] }
-      add_bundler_script unless File.exist?(File.join(bindir, "bundler"))
+      add_bundler_script unless File.exist?(File.join(RbConfig::CONFIG["bindir"], "bundler"))
       force_level = ARGV.count("-f")
       verbose_level = ARGV.count("-v")
       keep = ARGV.count("-k") > 0
-      Dir.glob(File.join(bindir, "*")).each do |file|
-        next if File.directory?(file)
-        next if File.fnmatch?("*.*", file)
-        if File.exist?(file + ".exe") && force_level < 1
-          next files[:skipped_exist] << file
-        end
-        unless [
-          File.exist?(file + ".bat"), File.exist?(file + ".cmd"),
-          File.exist?(file + ".no_tbj.bat"), File.exist?(file + ".no_tbj.cmd"),
-        ].any?
-          files[:skipped_nobat] << file
-          puts "Could not find bat file for #{file}".minfo
-          next
-        end
+      bindirs.each do |bindir|
+        Dir.glob(File.join(bindir, "*")).each do |file|
+          next if File.directory?(file)
+          next if File.fnmatch?("*.*", File.basename(file))
 
-        begin
-          FileUtils.cp(exepath, file + ".exe")
-        rescue => e
-          if verbose_level > 0
-            puts "Failed to copy {#{exepath}} to {#{file}.exe}.".red
-            puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+          if File.exist?(file + ".exe") && force_level < 1
+            next files[:skipped_exist] << file
           end
-          files[:skipped_exception] << file
-        else
-          if keep
-            files[:installed] << file
+          unless [
+            File.exist?(file + ".bat"), File.exist?(file + ".cmd"),
+            File.exist?(file + ".no_tbj.bat"), File.exist?(file + ".no_tbj.cmd"),
+          ].any?
+            files[:skipped_nobat] << file
+            puts "Could not find bat file for #{file}".minfo
             next
           end
+
           begin
-            FileUtils.mv(file + ".bat", file + ".no_tbj.bat") if File.exist?(file + ".bat")
-            FileUtils.mv(file + ".cmd", file + ".no_tbj.cmd") if File.exist?(file + ".cmd")
+            FileUtils.cp(exepath, file + ".exe")
           rescue => e
             if verbose_level > 0
-              puts "Failed to rename {#{file}}.".red
+              puts "Failed to copy {#{exepath}} to {#{file}.exe}.".red
               puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
             end
             files[:skipped_exception] << file
           else
-            files[:installed] << file
+            if keep
+              files[:installed] << file
+              next
+            end
+            begin
+              FileUtils.mv(file + ".bat", file + ".no_tbj.bat") if File.exist?(file + ".bat")
+              FileUtils.mv(file + ".cmd", file + ".no_tbj.cmd") if File.exist?(file + ".cmd")
+            rescue => e
+              if verbose_level > 0
+                puts "Failed to rename {#{file}}.".red
+                puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+              end
+              files[:skipped_exception] << file
+            else
+              if verbose_level > 0
+                puts "Installed {#{file}}.".success
+              end
+              files[:installed] << file
+            end
           end
         end
       end
@@ -141,7 +146,7 @@ module NoTBJ
 
     def show_info
       puts "no_tbj version: {#{NoTBJ::VERSION}}".minfo
-      puts "Bindir: {#{RbConfig::CONFIG["bindir"]}}".minfo
+      puts "Bindirs: {#{bindirs.join("}, {")}}".minfo
       puts "Executables: {#{tbj_executables.length}}".minfo
       puts "Executables path: {#{exepath}}".minfo
       puts ""
@@ -186,18 +191,23 @@ module NoTBJ
     private
 
     def tbj_executables
-      bindir = RbConfig::CONFIG["bindir"]
-      Dir.glob(File.join(bindir, "*.exe")).filter do |file|
-        next if File.directory?(file)
-        File.open(file, "rb") do |f|
-          f.seek(-CHECKS.length, IO::SEEK_END)
-          f.read(CHECKS.length) == CHECKS
+      bindirs.each do |bindir|
+        Dir.glob(File.join(bindir, "*.exe")).filter do |file|
+          next if File.directory?(file)
+          File.open(file, "rb") do |f|
+            f.seek(-CHECKS.length, IO::SEEK_END)
+            f.read(CHECKS.length) == CHECKS
+          end
         end
       end
     end
 
     def exepath
       File.join(__dir__, "runner.exe")
+    end
+
+    def bindirs
+      [RbConfig::CONFIG["bindir"], RbConfig::CONFIG["libdir"] + "/ruby/gems/" + RbConfig::CONFIG["ruby_version"] + "/bin"]
     end
   end
 end
