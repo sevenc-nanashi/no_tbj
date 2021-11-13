@@ -1,6 +1,6 @@
 # NoTBJ
 
-No more `Terminate Batch Job (Y/N)` prompts!
+No more `Terminate Batch Job (Y/N)` prompts!  
 This gem is only for windows.
 
 ## Installation
@@ -11,14 +11,13 @@ Execute this:
 ```
 ## Usage
 
-`no_tbj install` to install the executable.
-`no_tbj uninstall` to uninstall the executable.
+`no_tbj install` to install the executable.  
+`no_tbj uninstall` to uninstall the executable.  
 Just it, you won't be prompted to terminate the batch job!
 
 ## Development
 
-To build executable, execute `rake go`.
-Note `no_tbj` is added at the last of executable.
+To build executable, execute `rake go`. Note `no_tbj` is added at the last of executable.
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
