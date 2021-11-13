@@ -33,24 +33,47 @@ module NoTBJ
       add_bundler_script unless File.exist?(File.join(bindir, "bundler"))
       force_level = ARGV.count("-f")
       verbose_level = ARGV.count("-v")
+      keep = ARGV.count("-k") > 0
       Dir.glob(File.join(bindir, "*")).each do |file|
         next if File.directory?(file)
         next if File.fnmatch?("*.*", file)
         if File.exist?(file + ".exe") && force_level < 1
           next files[:skipped_exist] << file
         end
-        next files[:skipped_nobat] << file unless File.exist?(file + ".bat") || File.exist?(file + ".cmd")
+        unless [
+          File.exist?(file + ".bat"), File.exist?(file + ".cmd"),
+          File.exist?(file + ".no_tbj.bat"), File.exist?(file + ".no_tbj.cmd"),
+        ].any?
+          files[:skipped_nobat] << file
+          puts "Could not find bat file for #{file}".minfo
+          next
+        end
 
         begin
           FileUtils.cp(exepath, file + ".exe")
         rescue => e
           if verbose_level > 0
-            puts "Failed to copy {#{exepath}} to {#{file}}.".red
+            puts "Failed to copy {#{exepath}} to {#{file}.exe}.".red
             puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
           end
           files[:skipped_exception] << file
         else
-          files[:installed] << file
+          if keep
+            files[:installed] << file
+            next
+          end
+          begin
+            FileUtils.mv(file + ".bat", file + ".no_tbj.bat") if File.exist?(file + ".bat")
+            FileUtils.mv(file + ".cmd", file + ".no_tbj.cmd") if File.exist?(file + ".cmd")
+          rescue => e
+            if verbose_level > 0
+              puts "Failed to rename {#{file}}.".red
+              puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+            end
+            files[:skipped_exception] << file
+          else
+            files[:installed] << file
+          end
         end
       end
       files = files.map { |k, v| [k, v.map { |f| File.basename(f) }] }.to_h
@@ -95,6 +118,7 @@ module NoTBJ
       puts "  no_tbj install".info
       puts "  You can specify {-f} to overwrite existing files.".minfo
       puts "  You can specify {-v} to show verbose output.".minfo
+      puts "  You can specify {-k} to keep the original bat/cmd file.".minfo
       puts "{uninstall:}".green
       puts "  no_tbj uninstall".info
       puts "  You can specify {-v} to show verbose output.".minfo
