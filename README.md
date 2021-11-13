@@ -5,14 +5,14 @@ This gem is only for windows.
 
 ## Installation
 
-<!--
 Execute this:
 ```
 > gem install no_tbj
 ```
 
--->
+<!--
 This gem is not on rubygems.org, so you need to install it manually.
+-->
 
 ```
 git clone git@github.com:sevenc-nanashi/no_tbj.git
