@@ -99,7 +99,19 @@ module NoTBJ
           end
           files[:skipped_exception] << file
         else
-          files[:uninstalled] << file
+          begin
+            base = file.sub(/\.exe$/, "")
+            FileUtils.mv(base + ".no_tbj.bat", base + ".bat") if File.exist?(base + ".no_tbj.bat")
+            FileUtils.mv(base + ".no_tbj.cmd", base + ".cmd") if File.exist?(base + ".no_tbj.cmd")
+          rescue => e
+            if verbose_level > 0
+              puts "Failed to rename {#{base}.no_tbj.bat} or {#{base}.no_tbj.cmd}.".red
+              puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+            end
+            files[:skipped_exception] << file
+          else
+            files[:uninstalled] << file
+          end
         end
       end
 
