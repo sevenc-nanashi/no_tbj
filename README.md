@@ -12,7 +12,6 @@ Execute this:
 
 <!--
 This gem is not on rubygems.org, so you need to install it manually.
--->
 
 ```
 git clone git@github.com:sevenc-nanashi/no_tbj.git
@@ -21,6 +20,7 @@ rake go
 gem build no_tbj.gemspec
 gem install no_tbj-x.x.x.gem
 ```
+-->
 
 ## Usage
 
