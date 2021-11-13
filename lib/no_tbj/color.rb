@@ -17,7 +17,7 @@ module NoTBJ::Color
     end
 
     def gray
-      colorize(90)
+      colorize(37)
     end
 
     alias error red
