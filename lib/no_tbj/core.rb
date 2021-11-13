@@ -150,14 +150,14 @@ module NoTBJ
         end
 
         if Gem.respond_to?(:activate_bin_path)
-        load Gem.activate_bin_path('bundler', 'bundle', version)
+        load Gem.activate_bin_path('bundler', '!name!', version)
         else
         gem "bundler", version
-        load Gem.bin_path("bundler", "bundle", version)
+        load Gem.bin_path("bundler", "!name!", version)
         end
       RUBY
-      File.write(File.join(RbConfig::CONFIG["bindir"], "bundler"), bundler_ruby)
-      File.write(File.join(RbConfig::CONFIG["bindir"], "bundle"), bundler_ruby)
+      File.write(File.join(RbConfig::CONFIG["bindir"], "bundler"), bundler_ruby.sub("!name!", "bundler"))
+      File.write(File.join(RbConfig::CONFIG["bindir"], "bundle"), bundler_ruby.sub("!name!", "bundle"))
     end
 
     private
