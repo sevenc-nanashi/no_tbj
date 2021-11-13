@@ -28,6 +28,7 @@ module NoTBJ
       exepath = File.join(__dir__, +"main.exe")
       files = { skipped_exist: [], skipped_nobat: [], skipped_exception: [], installed: [] }
       force_level = ARGV.count("-f")
+      verbose_level = ARGV.count("-v")
       Dir.glob(File.join(bindir, "*")).each do |file|
         next if File.directory?(file)
         next if File.fnmatch?("*.*", file)
@@ -38,7 +39,11 @@ module NoTBJ
 
         begin
           FileUtils.cp(exepath, file + ".exe")
-        rescue
+        rescue => e
+          if verbose_level > 0
+            puts "Failed to copy {#{exepath}} to {#{file}}.".red
+            puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+          end
           files[:skipped_exception] << file
         else
           files[:installed] << file
@@ -50,13 +55,14 @@ module NoTBJ
       puts "Skipped {#{files[:skipped_nobat].length}} files because they don't have a bat or cmd file.".minfo unless files[:skipped_nobat].empty?
       unless files[:skipped_exception].empty?
         puts "Skipped {#{files[:skipped_exception].length}} files because of an exception.".warn
-        puts "Try adding {`.bat`} or {`.cmd`} to the end of the file name.".minfo
+        puts "This usually occurs that the executable is already installed and running.".minfo
       end
     end
 
     def uninstall
       bindir = RbConfig::CONFIG["bindir"]
       files = { skipped_notnotbj: [], skipped_exception: [], uninstalled: [] }
+      verbose_level = ARGV.count("-v")
       Dir.glob(File.join(bindir, "*.exe")).each do |file|
         next if File.directory?(file)
         is_no_tbj = false
@@ -67,7 +73,11 @@ module NoTBJ
         if is_no_tbj
           begin
             FileUtils.rm(file)
-          rescue
+          rescue => e
+            if verbose_level > 0
+              puts "Failed to remove {#{file}}.".red
+              puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
+            end
             files[:skipped_exception] << file
           else
             files[:uninstalled] << file
@@ -81,7 +91,7 @@ module NoTBJ
       puts "Skipped {#{files[:skipped_notnotbj].length}} files because they aren't no_tbj's executable.".minfo unless files[:skipped_notnotbj].empty?
       unless files[:skipped_exception].empty?
         puts "Skipped {#{files[:skipped_exception].length}} files because of an exception.".minfo
-        puts "Try adding {`.bat`} or {`.cmd`} to the end of the file name.".minfo
+        puts "This usually occurs that the executable is running.".minfo
       end
     end
   end
