@@ -94,7 +94,7 @@ module NoTBJ
       end
 
       files = files.map { |k, v| [k, v.map { |f| File.basename(f) }] }.to_h
-      puts "Uninstalled for {#{files[:uninstalled].length}} files.".success
+      puts "Uninstalled {#{files[:uninstalled].length}} files.".success
       unless files[:skipped_exception].empty?
         puts "Skipped {#{files[:skipped_exception].length}} files because of an exception.".minfo
         puts "This usually occurs that the executable is running.".minfo
