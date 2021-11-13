@@ -7,11 +7,16 @@ namespace :go do
   task :build do
     File.delete("./lib/no_tbj/runner.exe") if File.exist?("./lib/no_tbj/runner.exe")
     sh "go build -o ./lib/no_tbj/runner.exe ./go/runner.go"
+    File.delete("./lib/no_tbj/runner_gemlib.exe") if File.exist?("./lib/no_tbj/runner_gemlib.exe")
+    sh "go build -o ./lib/no_tbj/runner_gemlib.exe ./go/runner_gemlib.go"
   end
 
   task :modify do
     require_relative "lib/no_tbj"
     File.open("./lib/no_tbj/runner.exe", "ab") do |f|
+      f.write(NoTBJ::CHECKS)
+    end
+    File.open("./lib/no_tbj/runner_gemlib.exe", "ab") do |f|
       f.write(NoTBJ::CHECKS)
     end
   end

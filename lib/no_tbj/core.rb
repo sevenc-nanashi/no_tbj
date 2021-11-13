@@ -32,7 +32,6 @@ module NoTBJ
       add_bundler_script unless File.exist?(File.join(RbConfig::CONFIG["bindir"], "bundler"))
       force_level = ARGV.count("-f")
       verbose_level = ARGV.count("-v")
-      keep = ARGV.count("-k") > 0
       bindirs.each do |bindir|
         Dir.glob(File.join(bindir, "*")).each do |file|
           next if File.directory?(file)
@@ -43,7 +42,6 @@ module NoTBJ
           end
           unless [
             File.exist?(file + ".bat"), File.exist?(file + ".cmd"),
-            File.exist?(file + ".no_tbj.bat"), File.exist?(file + ".no_tbj.cmd"),
           ].any?
             files[:skipped_nobat] << file
             puts "Could not find bat file for #{file}".minfo
@@ -51,7 +49,11 @@ module NoTBJ
           end
 
           begin
-            FileUtils.cp(exepath, file + ".exe")
+            if File.read(Dir.glob(file + ".{bat,cmd}")[0]).include?("../../../../../bin/")
+              FileUtils.cp(exepath_gemlib, file + ".exe")
+            else
+              FileUtils.cp(exepath, file + ".exe")
+            end
           rescue => e
             if verbose_level > 0
               puts "Failed to copy {#{exepath}} to {#{file}.exe}.".red
@@ -59,25 +61,7 @@ module NoTBJ
             end
             files[:skipped_exception] << file
           else
-            if keep
-              files[:installed] << file
-              next
-            end
-            begin
-              FileUtils.mv(file + ".bat", file + ".no_tbj.bat") if File.exist?(file + ".bat")
-              FileUtils.mv(file + ".cmd", file + ".no_tbj.cmd") if File.exist?(file + ".cmd")
-            rescue => e
-              if verbose_level > 0
-                puts "Failed to rename {#{file}}.".red
-                puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
-              end
-              files[:skipped_exception] << file
-            else
-              if verbose_level > 0
-                puts "Installed {#{file}}.".success
-              end
-              files[:installed] << file
-            end
+            files[:installed] << file
           end
         end
       end
@@ -95,6 +79,7 @@ module NoTBJ
       files = { skipped_notnotbj: [], skipped_exception: [], uninstalled: [] }
       verbose_level = ARGV.count("-v")
       tbj_executables.each do |file|
+        next if File.directory?(file)
         begin
           FileUtils.rm(file)
         rescue => e
@@ -104,19 +89,7 @@ module NoTBJ
           end
           files[:skipped_exception] << file
         else
-          begin
-            base = file.sub(/\.exe$/, "")
-            FileUtils.mv(base + ".no_tbj.bat", base + ".bat") if File.exist?(base + ".no_tbj.bat")
-            FileUtils.mv(base + ".no_tbj.cmd", base + ".cmd") if File.exist?(base + ".no_tbj.cmd")
-          rescue => e
-            if verbose_level > 0
-              puts "Failed to rename {#{base}.no_tbj.bat} or {#{base}.no_tbj.cmd}.".red
-              puts (verbose_level > 1 ? e.full_message : e.message).lines.map { |l| "  " + l }.join
-            end
-            files[:skipped_exception] << file
-          else
-            files[:uninstalled] << file
-          end
+          files[:uninstalled] << file
         end
       end
 
@@ -191,8 +164,9 @@ module NoTBJ
     private
 
     def tbj_executables
+      res = []
       bindirs.each do |bindir|
-        Dir.glob(File.join(bindir, "*.exe")).filter do |file|
+        res += Dir.glob(File.join(bindir, "*.exe")).filter do |file|
           next if File.directory?(file)
           File.open(file, "rb") do |f|
             f.seek(-CHECKS.length, IO::SEEK_END)
@@ -200,10 +174,15 @@ module NoTBJ
           end
         end
       end
+      res
     end
 
     def exepath
       File.join(__dir__, "runner.exe")
+    end
+
+    def exepath_gemlib
+      File.join(__dir__, "runner_gemlib.exe")
     end
 
     def bindirs
