@@ -108,7 +108,6 @@ module NoTBJ
       puts "  no_tbj install".info
       puts "  You can specify {-f} to overwrite existing files.".minfo
       puts "  You can specify {-v} to show verbose output.".minfo
-      puts "  You can specify {-k} to keep the original bat/cmd file.".minfo
       puts "{uninstall:}".green
       puts "  no_tbj uninstall".info
       puts "  You can specify {-v} to show verbose output.".minfo
