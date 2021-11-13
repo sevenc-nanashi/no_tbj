@@ -5,13 +5,13 @@ task default: %i[]
 
 namespace :go do
   task :build do
-    File.delete("./lib/no_tbj/main.exe") if File.exist?("./lib/no_tbj/main.exe")
-    sh "go build -o ./lib/no_tbj/main.exe ./go/main.go"
+    File.delete("./lib/no_tbj/runner.exe") if File.exist?("./lib/no_tbj/runner.exe")
+    sh "go build -o ./lib/no_tbj/runner.exe ./go/runner.go"
   end
 
   task :modify do
     require_relative "lib/no_tbj"
-    File.open("./lib/no_tbj/main.exe", "ab") do |f|
+    File.open("./lib/no_tbj/runner.exe", "ab") do |f|
       f.write(NoTBJ::CHECKS)
     end
   end

@@ -126,7 +126,7 @@ module NoTBJ
     end
 
     def exepath
-      File.join(__dir__, "main.exe")
+      File.join(__dir__, "runner.exe")
     end
   end
 end
