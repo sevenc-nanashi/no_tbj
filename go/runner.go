@@ -14,10 +14,6 @@ func main() {
 	executable = strings.Replace(executable, "\\", "/", -1)
 	trap := make(chan os.Signal, 1)
 	signal.Notify(trap, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
-	go func() {
-		<-trap
-		// Do nothing
-	}()
 	args := os.Args
 	base := executable[:len(executable)-4]
 	args[0] = base
@@ -26,5 +22,9 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
+	go func() {
+		<-trap
+		cmd.Wait()
+	}()
 	cmd.Run()
 }
