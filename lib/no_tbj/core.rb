@@ -34,8 +34,9 @@ module NoTBJ
       verbose_level = ARGV.count("-v")
       bindirs.each do |bindir|
         Dir.glob(File.join(bindir, "*")).each do |file|
-          next if File.directory?(file)
-          next if File.fnmatch?("*.*", File.basename(file))
+          next if File.directory?(file)  # No directory
+          next if File.fnmatch?("*.*", File.basename(file))  # We only want ruby file
+          next if file == "no_tbj"  # Ignore no_tbj itself
 
           if File.exist?(file + ".exe") && force_level < 1
             next files[:skipped_exist] << file
