@@ -4,7 +4,7 @@ require_relative "color"
 
 module NoTBJ
   using NoTBJ::Color
-  CHECKS = "no_tbj"
+  CHECKS = "no_tbj@#{NoTBJ::VERSION}".encode("ASCII-8BIT").freeze
 
   class CLI
     def run

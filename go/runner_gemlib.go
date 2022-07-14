@@ -25,6 +25,8 @@ func main() {
 	go func() {
 		<-trap
 		cmd.Wait()
+		os.Exit(cmd.ProcessState.ExitCode())
 	}()
 	cmd.Run()
+	os.Exit(cmd.ProcessState.ExitCode())
 }
