@@ -38,7 +38,11 @@ module NoTBJ
           next if File.fnmatch?("*.*", File.basename(file))  # We only want ruby file
           next if file == "no_tbj"  # Ignore no_tbj itself
 
-          if File.exist?(file + ".exe") && force_level < 1
+          if File.exist?(file + ".exe") &&
+             File.open(file + ".exe", "rb")
+               .tap { |f| f.seek(-CHECKS.length, IO::SEEK_END) }
+               .then { |f| f.read(CHECKS.length) } == CHECKS &&
+             verbose_level < 1
             next files[:skipped_exist] << file
           end
           unless [
